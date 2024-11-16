@@ -1,5 +1,5 @@
 # Use the official Python image
-FROM python:3
+FROM python:3.9-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -16,6 +16,7 @@ COPY . .
 # Expose the port for the Django development server
 EXPOSE 8000
 
-# Set the default command to run the server
+# Default command to start the Django app
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
 

@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'celery_rabbitmq'
+        CONTAINER_NAME = 'celery_rabbitmq_container'
+    }
+
+    stages {
+        stage('Test Docker') {
+            steps {
+                script {
+                    sh 'docker --version'
+                    sh 'docker run hello-world'
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh '''
+                    # Stop and remove any existing container
+                    docker stop ${CONTAINER_NAME} || echo "No running container found."
+                    docker rm ${CONTAINER_NAME} || echo "No existing container found."
+                    
+                    # Build the Docker image
+                    docker build -t ${IMAGE_NAME} .
+                    '''
+                }
+            }
+        }
+
+        stage('Run RabbitMQ Service') {
+            steps {
+                script {
+                    sh '''
+                    docker network create celery_network || echo "Network already exists."
+                    
+                    # Start RabbitMQ container
+                    docker run --name rabbitmq --network celery_network -p 5672:5672 -p 15672:15672 -d rabbitmq:3-management
+                    '''
+                }
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                script {
+                    sh '''
+                    # Run the Django container with Celery configuration
+                    docker run --name ${CONTAINER_NAME} --network celery_network -p 8000:8000 -d ${IMAGE_NAME}
+                    '''
+                }
+            }
+        }
+
+        stage('Run Celery Worker') {
+            steps {
+                script {
+                    sh '''
+                    # Run the Celery worker
+                    docker run --name celery_worker --network celery_network -e CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/ ${IMAGE_NAME} celery -A celery_demo worker --loglevel=info
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                sh '''
+                # Display running containers for debugging
+                docker ps -a
+                '''
+            }
+        }
+    }
+}
