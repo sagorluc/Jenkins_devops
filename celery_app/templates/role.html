@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Temporary Role</title>
+</head>
+<body>
+    <h1>Assign Temporary Role</h1>
+    <form id="roleAssignmentForm">
+        <label for="username">User:</label>
+        <select id="username" name="username">
+            <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label for="role">Role:</label>
+        <select id="role" name="role">
+            <option value="manager">Manager</option>
+            <option value="owner">Owner</option>
+        </select>
+        
+        <label for="duration">Duration (minutes):</label>
+        <input type="number" id="duration" name="duration" min="1" required>
+
+        <button type="submit">Assign Role</button>
+    </form>
+
+    <script>
+        async function loadUsers() {
+            const response = await fetch('/users/');
+            const users = await response.json();
+            const userSelect = document.getElementById('username');
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = user.username;
+                userSelect.appendChild(option);
+            });
+        }
+
+        document.getElementById('roleAssignmentForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = {
+                username: document.getElementById('username').value,
+                role: document.getElementById('role').value,
+                duration_minutes: document.getElementById('duration').value,
+            };
+            const response = await fetch('/assign-role/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+            const result = await response.json();
+            alert(result.message || 'Role assigned!');
+        });
+
+        // Load all users on page load
+        loadUsers();
+    </script>
+</body>
+</html>

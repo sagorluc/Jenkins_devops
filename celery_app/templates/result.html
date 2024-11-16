@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav ul li {
+            padding: 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+        }
+
+        nav ul li a:hover {
+            background-color: #575757;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url "home" %}">Home</a></li>
+            <li><a href="{% url "contact" %}">Contact</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav>
+    <div style="width:50%; margin:auto;">
+        <h1>This is result</h1>
+        <p>Task id: {{result.id}}</p><br>
+
+        {% if result %}
+            <p>Result id: {{result.id}}</p><br>
+            <p>Result task id: {{result.task_id}}</p><br>
+            <p>Result task state: {{result.state}}</p><br>
+            <p>Result task status: {{result.status}}</p><br>
+            <p>Result task value: {{result.result}}</p><br>
+        {% endif %}
+
+
+    </div>
+</body>
+</html>
